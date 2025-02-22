@@ -131,8 +131,7 @@ else:
                 st.text(names[i])
                 st.image(posters[i])
 
-st.markdown("---")
-st.markdown("© Bingyfi 2025 - Created with ❤️")
+
 
 # Streamlit Footer
 st.markdown("""
