@@ -131,7 +131,12 @@ else:
                 st.text(names[i])
                 st.image(posters[i])
 
-
-
 st.markdown("---")
 st.markdown("© Bingyfi 2025 - Created with ❤️")
+
+# Streamlit Footer
+st.markdown("""
+    <div style="text-align: center; padding: 10px; font-size: 14px;">
+        Made with ❤️ by DesDevelopers | In Illuminati 2025 
+    </div>
+""", unsafe_allow_html=True)
