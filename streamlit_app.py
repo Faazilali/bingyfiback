@@ -20,24 +20,37 @@ def authenticate(username, password):
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
-def fetch_poster(movie_id):
-    response = requests.get(
-        f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=a7929155a13f1d72c8b721ee864c3299&language=en-US"
-    )
+def fetch_movie_details(movie_id):
+    url = f"https://api.themoviedb.org/3/movie/{movie_id}?api_key=a7929155a13f1d72c8b721ee864c3299&language=en-US"
+    response = requests.get(url)
     data = response.json()
-    return "https://image.tmdb.org/t/p/w500" + data['poster_path'] if 'poster_path' in data and data['poster_path'] else "https://via.placeholder.com/500x750?text=No+Image"
+    
+    poster_url = "https://image.tmdb.org/t/p/w500" + data['poster_path'] if 'poster_path' in data and data['poster_path'] else "https://via.placeholder.com/500x750?text=No+Image"
+    genre = ", ".join([g["name"] for g in data.get("genres", [])]) if "genres" in data else "Unknown Genre"
+    duration = f"{data.get('runtime', 'N/A')} min"
+    
+    return poster_url, genre, duration
 
 def recommend(movie):
     movie_index = movies[movies['title'] == movie].index[0]
     distances = similarity[movie_index]
-    movies_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x:x[1])[1:6]
+    movies_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:6]
+    
     recommended_movies = []
     recommended_movies_posters = []
+    recommended_movies_genres = []
+    recommended_movies_durations = []
+    
     for i in movies_list:
         movie_id = movies.iloc[i[0]].movie_id
+        poster, genre, duration = fetch_movie_details(movie_id)
+        
         recommended_movies.append(movies.iloc[i[0]].title)
-        recommended_movies_posters.append(fetch_poster(movie_id))
-    return recommended_movies, recommended_movies_posters
+        recommended_movies_posters.append(poster)
+        recommended_movies_genres.append(genre)
+        recommended_movies_durations.append(duration)
+    
+    return recommended_movies, recommended_movies_posters, recommended_movies_genres, recommended_movies_durations
 
 def get_greeting():
     hour = datetime.utcnow().hour
@@ -56,7 +69,7 @@ def fetch_trending_movies():
         return [], []
     movies = data["results"][:5]
     trending_titles = [movie.get("title", "Unknown") for movie in movies]
-    trending_posters = [fetch_poster(movie["id"]) if "id" in movie else "https://via.placeholder.com/500x750?text=No+Image" for movie in movies]
+    trending_posters = [fetch_movie_details(movie["id"])[0] if "id" in movie else "https://via.placeholder.com/500x750?text=No+Image" for movie in movies]
     return trending_titles, trending_posters
 
 movies_dict = pickle.load(open('movies.pkl', 'rb'))
@@ -124,18 +137,18 @@ else:
     st.text("Enter the name of the movie you like")
     selected_movie_name = st.selectbox('Search your movie', movies['title'].values)
     if st.button('Recommend'):
-        names, posters = recommend(selected_movie_name)
+        names, posters, genres, durations = recommend(selected_movie_name)
         cols = st.columns(len(names))
         for i, col in enumerate(cols):
             with col:
                 st.text(names[i])
                 st.image(posters[i])
-
-
+                st.write(f"*Genre:* {genres[i]}")
+                st.write(f"*Duration:* {durations[i]}")
 
 # Streamlit Footer
 st.markdown("""
     <div style="text-align: center; padding: 10px; font-size: 14px;">
-        Made with ❤️ by DesDevelopers | In Illuminati 2025 
+        Made with ❤ by DesDevelopers | In Illuminati 2025 
     </div>
 """, unsafe_allow_html=True)
