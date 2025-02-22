@@ -4,6 +4,7 @@ import pandas as pd
 import requests
 from PIL import Image
 from datetime import datetime
+import base64
 
 # Authentication credentials
 USER_CREDENTIALS = {
