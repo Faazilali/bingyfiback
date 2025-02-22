@@ -55,7 +55,7 @@ def recommend(movie):
 def get_greeting():
     hour = datetime.utcnow().hour
     if hour < 12:
-        return "Good morning"
+        return "Good Afternoon"
     elif hour < 18:
         return "Good afternoon"
     else:
