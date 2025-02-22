@@ -103,7 +103,7 @@ set_bg_image("bg.jpg")
 
 # Authentication System
 if not st.session_state.logged_in:
-    st.title("Login to Movie Recommender")
+    st.title("Login to Bingyfi")
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
     if st.button("Login"):
